@@ -1,6 +1,6 @@
 
-const { loadFile } = require('./src/file');
-const { processRows } = require('./src/analyse');
+const { loadFile } = require('./file');
+const { processRows } = require('../src/services/analyse');
 
 const filename = 'locations';
 const limit = 10;

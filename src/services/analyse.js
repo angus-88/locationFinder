@@ -1,6 +1,6 @@
 const { getLocation } = require('./location');
 const { getDuration } = require('./duration');
-const { saveOutput } = require('./file');
+const { saveOutput } = require('../../local/file');
 
 const processRows = async (rows, index, output, config) => {
   const {

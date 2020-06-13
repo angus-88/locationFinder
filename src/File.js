@@ -7,7 +7,7 @@ import {
 import { getHeaders, processRow } from './services/analyse';
 import './file.css';
 
-const rowLimit = 20;
+const rowLimit = undefined;
 
 const downloadFile = (filename, fileType, fileContent) => {
   const element = document.createElement('a');
@@ -46,11 +46,13 @@ const File = ({ file, removeFile }) => {
 
     const rows = fileContent.split('\n');
     if (rows.length > 2) {
-      console.log('isRunning: ', isRunning);
       const config = getHeaders(rows[0]);
       config.filename = file.name.split('.').slice(0, -1);
       setFilename(config.filename);
-      const limit = rowLimit || rows.length - 1;
+      let limit = rows.length - 2;
+      if (rowLimit) {
+        limit = rows.length < rowLimit ? rows.length - 2 : rowLimit;
+      }
       const outputHeaders = config.headers.join(',');
       const output = [
         `${outputHeaders},Duration,FirstLine,SecondLine,Area,City,County,Region,State,Postcode,Country`,

@@ -14,6 +14,7 @@ function App() {
       </header>
       <main>
         <h2>Please only upload one file at a time</h2>
+        <p>Each file must at least have the Latitude, Longtitude headers in the first row</p>
         <Dropzone />
       </main>
     </div>

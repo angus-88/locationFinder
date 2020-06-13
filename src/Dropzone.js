@@ -11,7 +11,6 @@ const Dropzone = () => {
   };
 
   const handleDrop = (newFiles) => {
-    console.log(newFiles);
     const dedupedFiles = newFiles.filter((newFile) => !acceptedFiles.find((file) => file.name === newFile.path));
     if (dedupedFiles.length < newFiles.length) {
       setErrorMessages(['Duplicate files detected']);
@@ -22,9 +21,7 @@ const Dropzone = () => {
   };
 
   const handleDelete = (filename) => {
-    console.log('deleting', filename);
     const remainingFiles = acceptedFiles.filter((file) => file.name !== filename);
-    console.log('remainingFiles: ', remainingFiles);
     setFiles(remainingFiles);
   };
 

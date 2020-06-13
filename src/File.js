@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   ListItem, ListItemText, ListItemSecondaryAction, Button, Box, LinearProgress, Typography,
@@ -86,8 +86,13 @@ const File = ({ file, removeFile }) => {
 
         <ListItemText>{file.name} - {file.size / 1000} KB </ListItemText>
         <ListItemSecondaryAction className="fileButtons">
-          {results && <Button className="run-button" onClick={() => downloadFile(filename, 'text/plain', results)} variant="contained">Download</Button>}
-          {!results && <Button className="run-button" disabled={isRunning} onClick={runFile} variant="contained">Run</Button>}
+          {results
+            && <Button
+              className="run-button"
+              onClick={() => downloadFile(filename, 'text/plain', results)}
+              variant="contained">Download</Button>}
+          {!results
+           && <Button className="run-button" disabled={isRunning} onClick={runFile} variant="contained">Run</Button>}
           <Button onClick={handleCancelDelete} variant="contained">{isRunning ? 'Stop' : 'Delete'}</Button>
         </ListItemSecondaryAction>
       </div>

@@ -5,15 +5,34 @@ import FileList from './FileList';
 
 const Dropzone = () => {
   const [errorMessages, setErrorMessages] = useState([]);
+  const [acceptedFiles, setFiles] = useState([]);
   const rejectedHandler = (errors) => {
     setErrorMessages(errors.map((error) => `${error.file.name} could not be uploaded: ${error.errors[0].code}`));
   };
 
+  const handleDrop = (newFiles) => {
+    console.log(newFiles);
+    const dedupedFiles = newFiles.filter((newFile) => !acceptedFiles.find((file) => file.name === newFile.path));
+    if (dedupedFiles.length < newFiles.length) {
+      setErrorMessages(['Duplicate files detected']);
+    } else {
+      setErrorMessages(['']);
+    }
+    setFiles([...acceptedFiles, ...dedupedFiles]);
+  };
 
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+  const handleDelete = (filename) => {
+    console.log('deleting', filename);
+    const remainingFiles = acceptedFiles.filter((file) => file.name !== filename);
+    console.log('remainingFiles: ', remainingFiles);
+    setFiles(remainingFiles);
+  };
+
+
+  const { getRootProps, getInputProps } = useDropzone({
     accept: ['text/plain', 'application/vnd.ms-excel'],
     multiple: false,
-    onDropAccepted: () => setErrorMessages([]),
+    onDrop: handleDrop,
     onDropRejected: rejectedHandler,
   });
 
@@ -29,7 +48,7 @@ const Dropzone = () => {
         {errorMessages.map((message) => <p key={message} className="uploadError">{message}</p>)}
       </div>
       <div>
-        {acceptedFiles && <FileList acceptedFiles={acceptedFiles} />}
+        {<FileList acceptedFiles={acceptedFiles} handleDelete={handleDelete}/>}
       </div>
     </div>
   );

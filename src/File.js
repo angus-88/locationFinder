@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   ListItem, ListItemText, ListItemSecondaryAction, Button, Box, LinearProgress, Typography,
@@ -37,12 +37,19 @@ function LinearProgressWithLabel(props) {
 const File = ({ file, removeFile }) => {
   const [isRunning, setRunning] = useState(false);
   const [percentage, setPercentage] = useState(0);
+  const [filename, setFilename] = useState('');
+  const [results, setResults] = useState();
+
   const runFile = async () => {
     setRunning(true);
-    const rows = file.content.split('\n');
+    const fileContent = await file.text();
+
+    const rows = fileContent.split('\n');
     if (rows.length > 2) {
+      console.log('isRunning: ', isRunning);
       const config = getHeaders(rows[0]);
       config.filename = file.name.split('.').slice(0, -1);
+      setFilename(config.filename);
       const limit = rowLimit || rows.length - 1;
       const outputHeaders = config.headers.join(',');
       const output = [
@@ -55,12 +62,21 @@ const File = ({ file, removeFile }) => {
         console.log(`${index} of ${limit}`);
         // eslint-disable-next-line no-await-in-loop
         const rowOutput = await processRow(row, index, config);
-
         output.push(rowOutput);
       }
 
-      console.log(file);
+      setResults(output.join('\n'));
+      setRunning(false);
       downloadFile(config.filename, 'text/plain', output.join('\n'));
+    }
+  };
+
+  const handleCancelDelete = () => {
+    // TODO stop processing loop
+    if (isRunning) {
+      setRunning(false);
+    } else {
+      removeFile(file.name);
     }
   };
 
@@ -70,8 +86,9 @@ const File = ({ file, removeFile }) => {
 
         <ListItemText>{file.name} - {file.size / 1000} KB </ListItemText>
         <ListItemSecondaryAction className="fileButtons">
-          <Button className="run-button" disabled={isRunning} onClick={runFile} variant="contained">Run</Button>
-          <Button onClick={() => removeFile(file.name)} variant="contained">Delete</Button>
+          {results && <Button className="run-button" onClick={() => downloadFile(filename, 'text/plain', results)} variant="contained">Download</Button>}
+          {!results && <Button className="run-button" disabled={isRunning} onClick={runFile} variant="contained">Run</Button>}
+          <Button onClick={handleCancelDelete} variant="contained">{isRunning ? 'Stop' : 'Delete'}</Button>
         </ListItemSecondaryAction>
       </div>
       <div className="progress">

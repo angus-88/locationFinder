@@ -5,6 +5,10 @@ module.exports = {
   },
   extends: [
     'airbnb-base',
+    "plugin:react/recommended",
+  ],
+  plugins: [
+    "react",
   ],
   globals: {
     Atomics: 'readonly',
@@ -17,5 +21,7 @@ module.exports = {
   rules: {
     'no-console': 'off',
     'max-len': ['warn', {code: 120 }],
+    'import/no-extraneous-dependencies': ['error', { devDependencies: true}],
+    'indent': ['error', 2],
   },
 };

@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 const getAddress = async (lat, long) => {
   const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=jsonv2`;
@@ -13,7 +13,7 @@ const getAddress = async (lat, long) => {
 };
 
 // eslint-disable-next-line import/prefer-default-export
-const getLocation = async (lat, long) => {
+export const getLocation = async (lat, long) => {
   const address = await getAddress(lat, long);
   const {
     // eslint-disable-next-line camelcase
@@ -50,8 +50,4 @@ const getLocation = async (lat, long) => {
   ];
 
   return addressFields;
-};
-
-module.exports = {
-  getLocation,
 };

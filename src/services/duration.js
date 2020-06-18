@@ -1,6 +1,7 @@
-const moment = require('moment');
+/* eslint-disable import/prefer-default-export */
+import moment from 'moment';
 
-const getDuration = (fields, config) => {
+export const getDuration = (fields, config) => {
   const { startIndex, endIndex } = config;
   if (startIndex && endIndex) {
     const start = fields[startIndex];
@@ -28,8 +29,4 @@ const getDuration = (fields, config) => {
     }
   }
   return 'Start or End time missing';
-};
-
-module.exports = {
-  getDuration,
 };

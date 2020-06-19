@@ -40,7 +40,12 @@ const Dropzone = () => {
   return (
     <div className="container">
 
-      {showLimit && <TextField label="Row Limit" value={limit} onChange={(event) => setLimit(Number(event.target.value))} type="number"/> }
+      {showLimit
+      && <TextField
+        label="Row Limit"
+        value={limit}
+        onChange={(event) => setLimit(Number(event.target.value))} type="number"
+      /> }
 
       <div {...getRootProps({ className: 'dropzone' })}>
         <input {...getInputProps()} />

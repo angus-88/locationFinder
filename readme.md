@@ -8,7 +8,7 @@ TODO
 - Turn into a local webapp - DONE
 - Add limit option - DONE
 - Stop and start processing
-- Output errors in the UI
+- Output errors in the UI - DONE
 - Add Headers processing output to UI before processing rest of file
 - Add gap calculation between rows
 - Calculate duration at each location

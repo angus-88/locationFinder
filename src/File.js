@@ -1,94 +1,97 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
-  ListItem, Button, Box, LinearProgress, Typography,
+  ListItem, Button,
 } from '@material-ui/core';
 
 // eslint-disable-next-line import/named
 import { getHeaders, processRow } from './services/analyse';
+import LinearProgressWithLabel from './ProgressWithLabel';
 import './file.css';
-
-const downloadFile = (filename, fileType, fileContent) => {
-  const element = document.createElement('a');
-  const file = new Blob([fileContent], { type: fileType });
-  element.href = URL.createObjectURL(file);
-  element.download = `${filename}-output.csv`;
-  document.body.appendChild(element); // Required for this to work in FireFox
-  element.click();
-};
-
-function LinearProgressWithLabel(props) {
-  return (
-    <Box display="flex" alignItems="center">
-      <Box width="100%" mr={1}>
-        <LinearProgress variant="determinate" {...props} />
-      </Box>
-      <Box minWidth={35}>
-        <Typography variant="body2" color="textSecondary">{`${Math.round(
-          props.value,
-        )}%`}</Typography>
-      </Box>
-    </Box>
-  );
-}
-
+import downloadFile from './services/download';
 
 const File = ({ file, removeFile, rowLimit }) => {
-  const [isRunning, setRunning] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const errorsRef = useRef([]);
+  const isRunningRef = useRef(false);
+  const currentIndexRef = useRef(1);
+  const outputRef = useRef([]);
+  const configRef = useRef();
+  const fileContentRowsRef = useRef();
   const [filename, setFilename] = useState('');
   const [results, setResults] = useState();
+  const [isRunning, setIsRunning] = useState(false);
 
-  const runFile = async () => {
-    setRunning(true);
-    const fileContent = await file.text();
+  useEffect(() => {
+    setIsRunning(isRunningRef.current);
+  }, [isRunningRef.current]);
 
-    const rows = fileContent.split('\n');
-    if (rows.length > 2) {
-      const config = getHeaders(rows[0]);
-      config.filename = file.name.split('.').slice(0, -1);
-      setFilename(config.filename);
-      let limit = rows.length - 2;
-      if (rowLimit) {
-        limit = rows.length < rowLimit ? rows.length - 2 : rowLimit;
-      }
-      const outputHeaders = config.headers.join(',');
-      const output = [
-        `${outputHeaders},Duration,FirstLine,SecondLine,Area,City,County,Region,State,Postcode,Country`,
-      ];
+  const processRows = async () => {
+    isRunningRef.current = true;
+    let limit = fileContentRowsRef.current.length - 2;
+    if (rowLimit) {
+      limit = fileContentRowsRef.current.length < rowLimit ? fileContentRowsRef.current.length - 2 : rowLimit;
+    }
 
-      for (let index = 1; index <= limit; index += 1) {
-        setPercentage((index / limit) * 100);
-        const row = rows[index];
-        console.log(`${index} of ${limit}`);
-        // eslint-disable-next-line no-await-in-loop
-        const result = await processRow(row, index, config);
-        output.push(result.row);
+    while (currentIndexRef.current <= limit && isRunningRef.current) {
+      setPercentage((currentIndexRef.current / limit) * 100);
+      const row = fileContentRowsRef.current[currentIndexRef.current];
+      console.log(`${currentIndexRef.current} of ${limit}`);
+      // eslint-disable-next-line no-await-in-loop
+      const result = await processRow(row, currentIndexRef.current, configRef.current);
+      outputRef.current.push(result.row);
 
-        if (result.error) {
-          const errorIndex = errorsRef.current.findIndex(((error) => error.message === result.error));
-          if (errorIndex >= 0) {
-            errorsRef.current[errorIndex].count += 1;
-          } else {
-            errorsRef.current.push({ message: result.error, count: 1 });
-          }
+      if (result.error) {
+        const errorIndex = errorsRef.current.findIndex(((error) => error.message === result.error));
+        if (errorIndex >= 0) {
+          errorsRef.current[errorIndex].count += 1;
+        } else {
+          errorsRef.current.push({ message: result.error, count: 1 });
         }
       }
 
-      setResults(output.join('\n'));
-      setRunning(false);
-      downloadFile(config.filename, 'text/plain', output.join('\n'));
+      currentIndexRef.current += 1;
+    }
+
+    if (isRunningRef.current) {
+      setResults(outputRef.current.join('\n'));
+      downloadFile(configRef.current.filename, 'text/plain', outputRef.current.join('\n'));
+      isRunningRef.current = false;
+      setIsRunning(false);
+    }
+  };
+
+  const runFile = async () => {
+    if (isRunningRef.current) {
+      isRunningRef.current = false;
+      setIsRunning(false);
+    } else if (currentIndexRef > 1) {
+      processRows();
+    } else {
+      const fileContent = await file.text();
+
+      const rows = fileContent.split('\n');
+      fileContentRowsRef.current = rows;
+
+      if (rows.length > 2) {
+        const config = getHeaders(rows[0]);
+        configRef.current = config;
+        config.filename = file.name.split('.').slice(0, -1);
+        setFilename(config.filename);
+
+        const outputHeaders = config.headers.join(',');
+        outputRef.current.push(
+          `${outputHeaders},Duration,FirstLine,SecondLine,Area,City,County,Region,State,Postcode,Country`,
+        );
+        processRows();
+      } else {
+        errorsRef.current.push('File does not contain enough data');
+      }
     }
   };
 
   const handleCancelDelete = () => {
-    // TODO stop processing loop
-    if (isRunning) {
-      setRunning(false);
-    } else {
-      removeFile(file.name);
-    }
+    removeFile(file.name);
   };
 
   return (
@@ -103,11 +106,17 @@ const File = ({ file, removeFile, rowLimit }) => {
               onClick={() => downloadFile(filename, 'text/plain', results)}
               variant="contained">Download</Button>}
           {!results
-           && <Button className="run-button" disabled={isRunning} onClick={runFile} variant="contained">Run</Button>}
-          <Button onClick={handleCancelDelete} variant="contained">{isRunning ? 'Stop' : 'Delete'}</Button>
+           && <Button
+             className="run-button"
+             onClick={runFile}
+             variant="contained"
+           >
+             {isRunning ? 'Stop' : 'Run'}
+           </Button>}
+          <Button onClick={handleCancelDelete} disabled={isRunning} variant="contained">Delete</Button>
         </div>
         <div className="progress">
-          {isRunning && <LinearProgressWithLabel value={percentage} />}
+          {percentage > 0 && <LinearProgressWithLabel value={percentage} />}
         </div>
         <div className="fileErrors">
           {errorsRef.current.map(
@@ -127,10 +136,6 @@ File.propTypes = {
 
 File.defaultProps = {
   rowLimit: undefined,
-};
-
-LinearProgressWithLabel.propTypes = {
-  value: PropTypes.number.isRequired,
 };
 
 export default File;

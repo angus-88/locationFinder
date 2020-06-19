@@ -6,7 +6,7 @@ Exports results to a csv with extra fields
 
 TODO
 - Turn into a local webapp - DONE
-- Add limit option
+- Add limit option - DONE
 - Stop and start processing
 - Output errors in the UI
 - Add Headers processing output to UI before processing rest of file

@@ -7,10 +7,10 @@ import {
 import './FileList.css';
 import File from './File';
 
-const FileList = ({ acceptedFiles, handleDelete }) => <div>
+const FileList = ({ acceptedFiles, handleDelete, limit }) => <div>
   <List className="file-list">
     {acceptedFiles.map((file) => (
-      <File removeFile={handleDelete} key={file.name} file={file} />
+      <File removeFile={handleDelete} key={file.name} file={file} rowLimit={limit}/>
     ))}
   </List>
 </div>;
@@ -18,6 +18,11 @@ const FileList = ({ acceptedFiles, handleDelete }) => <div>
 FileList.propTypes = {
   acceptedFiles: PropTypes.array.isRequired,
   handleDelete: PropTypes.func.isRequired,
+  limit: PropTypes.number,
+};
+
+FileList.defaultProps = {
+  limit: undefined,
 };
 
 export default FileList;

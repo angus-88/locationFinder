@@ -7,8 +7,6 @@ import {
 import { getHeaders, processRow } from './services/analyse';
 import './file.css';
 
-const rowLimit = undefined;
-
 const downloadFile = (filename, fileType, fileContent) => {
   const element = document.createElement('a');
   const file = new Blob([fileContent], { type: fileType });
@@ -34,7 +32,7 @@ function LinearProgressWithLabel(props) {
 }
 
 
-const File = ({ file, removeFile }) => {
+const File = ({ file, removeFile, rowLimit }) => {
   const [isRunning, setRunning] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [filename, setFilename] = useState('');
@@ -108,6 +106,11 @@ const File = ({ file, removeFile }) => {
 File.propTypes = {
   file: PropTypes.object.isRequired,
   removeFile: PropTypes.func.isRequired,
+  rowLimit: PropTypes.number,
+};
+
+File.defaultProps = {
+  rowLimit: undefined,
 };
 
 LinearProgressWithLabel.propTypes = {

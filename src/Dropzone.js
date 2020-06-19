@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import './Dropdown.css';
+import { TextField } from '@material-ui/core';
 import FileList from './FileList';
 
+const showLimit = process.env.NODE_ENV !== 'production';
+console.log(process.env.NODE_ENV, showLimit);
+
 const Dropzone = () => {
+  const [limit, setLimit] = useState(showLimit ? 5 : undefined);
   const [errorMessages, setErrorMessages] = useState([]);
   const [acceptedFiles, setFiles] = useState([]);
   const rejectedHandler = (errors) => {
@@ -35,6 +40,8 @@ const Dropzone = () => {
   return (
     <div className="container">
 
+      {showLimit && <TextField label="Row Limit" value={limit} onChange={(event) => setLimit(Number(event.target.value))} type="number"/> }
+
       <div {...getRootProps({ className: 'dropzone' })}>
         <input {...getInputProps()} />
         <p>Drag csv files here, or click to select files</p>
@@ -44,7 +51,7 @@ const Dropzone = () => {
         {errorMessages.map((message) => <p key={message} className="uploadError">{message}</p>)}
       </div>
       <div>
-        {<FileList acceptedFiles={acceptedFiles} handleDelete={handleDelete}/>}
+        {<FileList acceptedFiles={acceptedFiles} handleDelete={handleDelete} limit={limit}/>}
       </div>
     </div>
   );

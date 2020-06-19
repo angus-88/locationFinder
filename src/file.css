@@ -2,15 +2,27 @@ button.run-button {
   margin-right: 16px;
 }
 .fileWrapper {
-  width: 100%
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.fileName {
+  flex-grow: 1;
 }
 .progress {
   width: 100%;
-  margin-top: 16px
+  margin-top: 16px;
 }
 .fileButtons {
-  padding-bottom: 34px
+  display: flex;
+  min-width: 25%;
+  padding-bottom: 34px;
+  flex: 1 1;
+}
+.fileErrors {
+  width: 100%;
 }
 .listItem {
-  flex-wrap: wrap
+  flex-wrap: wrap;
 }

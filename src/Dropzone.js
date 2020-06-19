@@ -53,7 +53,7 @@ const Dropzone = () => {
       </div>
       <div>
 
-        {errorMessages.map((message) => <p key={message} className="uploadError">{message}</p>)}
+        {errorMessages.map((message) => <p key={message} className="error">{message}</p>)}
       </div>
       <div>
         {<FileList acceptedFiles={acceptedFiles} handleDelete={handleDelete} limit={limit}/>}

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-  List,
+  List, Divider,
 } from '@material-ui/core';
 
 import './FileList.css';
@@ -10,7 +10,10 @@ import File from './File';
 const FileList = ({ acceptedFiles, handleDelete, limit }) => <div>
   <List className="file-list">
     {acceptedFiles.map((file) => (
-      <File removeFile={handleDelete} key={file.name} file={file} rowLimit={limit}/>
+      <li key={file.name}>
+        <Divider />
+        <File removeFile={handleDelete} key={file.name} file={file} rowLimit={limit}/>
+      </li>
     ))}
   </List>
 </div>;

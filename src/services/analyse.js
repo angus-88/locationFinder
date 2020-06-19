@@ -56,21 +56,27 @@ export const processRow = async (currentRow, index, config) => {
     const outputRowArray = fields.map(trim);
 
     outputRowArray.push(getDuration(fields, config));
+    const result = {};
 
     try {
-      const addressFields = await getLocation(lat, long);
+      const addressFields = await getLocation(`${lat}`, long);
       outputRowArray.push(
         ...addressFields,
       );
     } catch (e) {
-      console.log(`Error at ${index}: ${e}`);
       outputRowArray.push('Error, unable to determin location');
+      if (e.response?.data?.error?.message) {
+        result.error = `${e.message} - ${e.response?.data?.error?.message}`;
+      } else {
+        result.error = e.message;
+      }
     } finally {
       const outputStr = outputRowArray.join(',');
 
       console.log(outputStr);
+      result.row = outputStr;
       // eslint-disable-next-line no-unsafe-finally
-      return outputStr;
+      return result;
     }
   } else {
     console.log('Row not valid, ignoring');

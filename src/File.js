@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
-  ListItem, ListItemText, ListItemSecondaryAction, Button, Box, LinearProgress, Typography,
+  ListItem, Button, Box, LinearProgress, Typography,
 } from '@material-ui/core';
 
+// eslint-disable-next-line import/named
 import { getHeaders, processRow } from './services/analyse';
 import './file.css';
 
@@ -35,6 +36,7 @@ function LinearProgressWithLabel(props) {
 const File = ({ file, removeFile, rowLimit }) => {
   const [isRunning, setRunning] = useState(false);
   const [percentage, setPercentage] = useState(0);
+  const errorsRef = useRef([]);
   const [filename, setFilename] = useState('');
   const [results, setResults] = useState();
 
@@ -61,8 +63,17 @@ const File = ({ file, removeFile, rowLimit }) => {
         const row = rows[index];
         console.log(`${index} of ${limit}`);
         // eslint-disable-next-line no-await-in-loop
-        const rowOutput = await processRow(row, index, config);
-        output.push(rowOutput);
+        const result = await processRow(row, index, config);
+        output.push(result.row);
+
+        if (result.error) {
+          const errorIndex = errorsRef.current.findIndex(((error) => error.message === result.error));
+          if (errorIndex >= 0) {
+            errorsRef.current[errorIndex].count += 1;
+          } else {
+            errorsRef.current.push({ message: result.error, count: 1 });
+          }
+        }
       }
 
       setResults(output.join('\n'));
@@ -84,8 +95,8 @@ const File = ({ file, removeFile, rowLimit }) => {
     <ListItem className= "listItem" key={file.name}>
       <div className="fileWrapper">
 
-        <ListItemText>{file.name} - {file.size / 1000} KB </ListItemText>
-        <ListItemSecondaryAction className="fileButtons">
+        <div className="fileName">{file.name} - {file.size / 1000} KB </div>
+        <div className="fileButtons">
           {results
             && <Button
               className="run-button"
@@ -94,10 +105,15 @@ const File = ({ file, removeFile, rowLimit }) => {
           {!results
            && <Button className="run-button" disabled={isRunning} onClick={runFile} variant="contained">Run</Button>}
           <Button onClick={handleCancelDelete} variant="contained">{isRunning ? 'Stop' : 'Delete'}</Button>
-        </ListItemSecondaryAction>
-      </div>
-      <div className="progress">
-        {isRunning && <LinearProgressWithLabel value={percentage} />}
+        </div>
+        <div className="progress">
+          {isRunning && <LinearProgressWithLabel value={percentage} />}
+        </div>
+        <div className="fileErrors">
+          {errorsRef.current.map(
+            (error, index) => <p key={index} className="error">{`Error count: ${error.count} - ${error.message}`}</p>,
+          )}
+        </div>
       </div>
     </ListItem>
   );

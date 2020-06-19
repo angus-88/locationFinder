@@ -28,7 +28,6 @@ const Dropzone = () => {
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: ['text/plain', 'application/vnd.ms-excel'],
-    multiple: false,
     onDrop: handleDrop,
     onDropRejected: rejectedHandler,
   });

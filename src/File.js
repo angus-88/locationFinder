@@ -55,7 +55,7 @@ const File = ({ file, removeFile, rowLimit }) => {
 
     if (isRunningRef.current) {
       setResults(outputRef.current.join('\n'));
-      downloadFile(configRef.current.filename, 'text/plain', outputRef.current.join('\n'));
+      // downloadFile(configRef.current.filename, 'text/plain', outputRef.current.join('\n'));
       isRunningRef.current = false;
       setIsRunning(false);
     }
@@ -94,6 +94,15 @@ const File = ({ file, removeFile, rowLimit }) => {
     removeFile(file.name);
   };
 
+  const getRunButtonText = () => {
+    if (isRunning) {
+      return 'Stop';
+    } if (percentage > 0) {
+      return 'Continue';
+    }
+    return 'Start';
+  };
+
   return (
     <ListItem className= "listItem" key={file.name}>
       <div className="fileWrapper">
@@ -111,7 +120,7 @@ const File = ({ file, removeFile, rowLimit }) => {
              onClick={runFile}
              variant="contained"
            >
-             {isRunning ? 'Stop' : 'Run'}
+             {getRunButtonText()}
            </Button>}
           <Button onClick={handleCancelDelete} disabled={isRunning} variant="contained">Delete</Button>
         </div>

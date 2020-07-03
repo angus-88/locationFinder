@@ -32,7 +32,7 @@ const Dropzone = () => {
 
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: ['text/plain', 'application/vnd.ms-excel'],
+    accept: ['text/plain', 'application/vnd.ms-excel', '.csv'],
     onDrop: handleDrop,
     onDropRejected: rejectedHandler,
   });
@@ -56,7 +56,7 @@ const Dropzone = () => {
         {errorMessages.map((message) => <p key={message} className="error">{message}</p>)}
       </div>
       <div>
-        {<FileList acceptedFiles={acceptedFiles} handleDelete={handleDelete} limit={limit}/>}
+        <FileList acceptedFiles={acceptedFiles} handleDelete={handleDelete} limit={limit}/>
       </div>
     </div>
   );

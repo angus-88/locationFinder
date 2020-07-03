@@ -104,7 +104,7 @@ const File = ({ file, removeFile, rowLimit }) => {
   };
 
   return (
-    <ListItem className= "listItem" key={file.name}>
+    <ListItem className= "listItem" key={file.name} component="div">
       <div className="fileWrapper">
 
         <div className="fileName">{file.name} - {file.size / 1000} KB </div>

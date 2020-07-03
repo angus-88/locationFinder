@@ -9,7 +9,8 @@ TODO
 - Add limit option - DONE (dev only)
 - Stop and start processing - DONE
 - Output errors in the UI - DONE
-- Display Alert when trying to navigate away
+- Display Alert when trying to navigate away - DONE
+- Add line count to UI
 - Add option to enable/disable auto download
 - Refactor app config (limit / auto download) into context
 - Add Headers processing output to UI before processing rest of file

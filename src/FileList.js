@@ -6,8 +6,10 @@ import {
 
 import './FileList.css';
 import File from './File';
+import LeavePrompt from './LeavePrompt';
 
 const FileList = ({ acceptedFiles, handleDelete, limit }) => <div>
+  {acceptedFiles.length > 0 && <LeavePrompt />}
   <List className="file-list">
     {acceptedFiles.map((file) => (
       <li key={file.name}>

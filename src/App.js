@@ -22,7 +22,6 @@ function App() {
             <p>Each CSV file must at least have the Latitude and Longtitude headers in the first row</p>
             <p>Files are processed in the broswer locally and not sent anywhere</p>
             <p>Refreshing the page will cause you to lose any files in progress</p>
-            {/* TODO Add the limit as text field here */}
             <Dropzone />
           </Route>
         </BrowserRouter>

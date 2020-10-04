@@ -30,7 +30,6 @@ const Dropzone = () => {
     setFiles(remainingFiles);
   };
 
-
   const { getRootProps, getInputProps } = useDropzone({
     accept: ['text/plain', 'application/vnd.ms-excel', '.csv'],
     onDrop: handleDrop,

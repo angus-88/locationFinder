@@ -12,7 +12,7 @@ import downloadFile from './services/download';
 
 const File = ({ file, removeFile, rowLimit }) => {
   const [percentage, setPercentage] = useState(0);
-  const errorsRef = useRef([]);
+  const [errors, setErrors] = useState({});
   const isRunningRef = useRef(false);
   const currentIndexRef = useRef(1);
   const outputRef = useRef([]);
@@ -21,10 +21,30 @@ const File = ({ file, removeFile, rowLimit }) => {
   const [filename, setFilename] = useState('');
   const [results, setResults] = useState();
   const [isRunning, setIsRunning] = useState(false);
+  const [cantRun, setCantRun] = useState(false);
+
+  const addError = (error, row) => {
+    setErrors((currentErrors) => {
+      const currentError = currentErrors[error] || {};
+      if (!currentError.count) {
+        currentError.count = 0;
+        currentError.rows = [];
+      }
+      const updatedErrors = {
+        ...currentErrors,
+        [error]: {
+          message: error,
+          count: currentError.count + 1,
+          rows: [...currentError.rows, row],
+        },
+      };
+      return updatedErrors;
+    });
+  };
 
   useEffect(() => {
     setIsRunning(isRunningRef.current);
-  }, [isRunningRef.current]);
+  });
 
   const processRows = async () => {
     isRunningRef.current = true;
@@ -42,12 +62,7 @@ const File = ({ file, removeFile, rowLimit }) => {
       outputRef.current.push(result.row);
 
       if (result.error) {
-        const errorIndex = errorsRef.current.findIndex(((error) => error.message === result.error));
-        if (errorIndex >= 0) {
-          errorsRef.current[errorIndex].count += 1;
-        } else {
-          errorsRef.current.push({ message: result.error, count: 1 });
-        }
+        addError(result.error, currentIndexRef.current + 1);
       }
 
       currentIndexRef.current += 1;
@@ -75,17 +90,23 @@ const File = ({ file, removeFile, rowLimit }) => {
 
       if (rows.length > 2) {
         const config = getHeaders(rows[0]);
-        configRef.current = config;
-        config.filename = file.name.split('.').slice(0, -1);
-        setFilename(config.filename);
+        if (config.latIndex >= 0 && config.longIndex >= 0) {
+          configRef.current = config;
+          config.filename = file.name.split('.').slice(0, -1);
+          setFilename(config.filename);
 
-        const outputHeaders = config.headers.join(',');
-        outputRef.current.push(
-          `${outputHeaders},Duration,FirstLine,SecondLine,Area,City,County,Region,State,Postcode,Country`,
-        );
-        processRows();
+          const outputHeaders = config.headers.join(',');
+          outputRef.current.push(
+            `${outputHeaders},Duration,FirstLine,SecondLine,Area,City,County,Region,State,Postcode,Country`,
+          );
+          processRows();
+        } else {
+          addError('Unable to determine lat and long headers', 'header');
+          setCantRun(true);
+        }
       } else {
-        errorsRef.current.push('File does not contain enough data');
+        addError('File does not contain enough data', 'header');
+        setCantRun(true);
       }
     }
   };
@@ -119,6 +140,7 @@ const File = ({ file, removeFile, rowLimit }) => {
              className="run-button"
              onClick={runFile}
              variant="contained"
+             disabled={cantRun}
            >
              {getRunButtonText()}
            </Button>}
@@ -128,8 +150,12 @@ const File = ({ file, removeFile, rowLimit }) => {
           {percentage > 0 && <LinearProgressWithLabel value={percentage} />}
         </div>
         <div className="fileErrors">
-          {errorsRef.current.map(
-            (error, index) => <p key={index} className="error">{`Error count: ${error.count} - ${error.message}`}</p>,
+          {Object.values(errors).map(
+            (error) => <p
+              key={error.message}
+              className="error">
+              {`Error count: ${error.count} - ${error.message} on rows: ${error.rows}`}
+            </p>,
           )}
         </div>
       </div>

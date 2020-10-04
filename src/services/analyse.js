@@ -59,12 +59,12 @@ export const processRow = async (currentRow, index, config) => {
     const result = {};
 
     try {
-      const addressFields = await getLocation(`${lat}`, long);
+      const addressFields = await getLocation(`${lat}`, `${long}`); // ensure strings
       outputRowArray.push(
         ...addressFields,
       );
     } catch (e) {
-      outputRowArray.push('Error, unable to determin location');
+      outputRowArray.push(`Error retrieving data for row`);
       if (e.response?.data?.error?.message) {
         result.error = `${e.message} - ${e.response?.data?.error?.message}`;
       } else {

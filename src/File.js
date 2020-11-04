@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import {
   ListItem, Button,
 } from '@material-ui/core';
+import parse from 'csv-parse/lib/sync';
+import stringify from 'csv-stringify/lib/sync';
 
 // eslint-disable-next-line import/named
 import { getHeaders, processRow } from './services/analyse';
@@ -69,7 +71,7 @@ const File = ({ file, removeFile, rowLimit }) => {
     }
 
     if (isRunningRef.current) {
-      setResults(outputRef.current.join('\n'));
+      setResults(stringify(outputRef.current));
       // downloadFile(configRef.current.filename, 'text/plain', outputRef.current.join('\n'));
       isRunningRef.current = false;
       setIsRunning(false);
@@ -84,21 +86,30 @@ const File = ({ file, removeFile, rowLimit }) => {
       processRows();
     } else {
       const fileContent = await file.text();
+      const contentJson = parse(fileContent);
 
-      const rows = fileContent.split('\n');
-      fileContentRowsRef.current = rows;
+      fileContentRowsRef.current = contentJson;
 
-      if (rows.length > 2) {
-        const config = getHeaders(rows[0]);
+      if (contentJson.length > 1) {
+        const config = getHeaders(contentJson[0]);
         if (config.latIndex >= 0 && config.longIndex >= 0) {
           configRef.current = config;
           config.filename = file.name.split('.').slice(0, -1);
           setFilename(config.filename);
 
-          const outputHeaders = config.headers.join(',');
-          outputRef.current.push(
-            `${outputHeaders},Duration,FirstLine,SecondLine,Area,City,County,Region,State,Postcode,Country`,
-          );
+          outputRef.current.push([
+            ...config.headers,
+            'Duration',
+            'FirstLine',
+            'SecondLine',
+            'Area',
+            'City',
+            'County',
+            'Region',
+            'State',
+            'Postcode',
+            'Country',
+          ]);
           processRows();
         } else {
           addError('Unable to determine lat and long headers', 'header');

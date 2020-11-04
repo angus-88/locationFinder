@@ -4,10 +4,10 @@ module.exports = {
   },
   extends: [
     'airbnb-base',
-    "plugin:react/recommended",
+    'plugin:react/recommended',
   ],
   plugins: [
-    "react",
+    'react',
   ],
   globals: {
     Atomics: 'readonly',
@@ -18,9 +18,10 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    'no-console': 'off',
-    'max-len': ['warn', {code: 120 }],
-    'import/no-extraneous-dependencies': ['error', { devDependencies: true}],
-    'indent': ['error', 2],
+    'no-unused-vars': 'warn',
+    'no-console': 'warn',
+    'max-len': ['warn', { code: 120 }],
+    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+    indent: ['warn', 2],
   },
 };

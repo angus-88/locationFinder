@@ -19,5 +19,4 @@ LinearProgressWithLabel.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-
 export default LinearProgressWithLabel;

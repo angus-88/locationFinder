@@ -4,7 +4,6 @@ import { BrowserRouter, Route } from 'react-router-dom';
 import Dropzone from './Dropzone';
 import './App.css';
 
-
 function App() {
   return (
     <div className="App">
